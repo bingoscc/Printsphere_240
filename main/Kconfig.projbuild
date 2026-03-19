@@ -1,0 +1,33 @@
+menu "PrintSphere Configuration"
+
+    config PRINTSPHERE_DEVICE_NAME
+        string "Device Name"
+        default "PrintSphere"
+        help
+            Name of the device for HASS discovery
+
+    config PRINTSPHERE_WIFI_AP_SSID
+        string "Setup AP SSID"
+        default "PrintSphere-Setup"
+        help
+            SSID for setup access point
+
+    config PRINTSPHERE_BAMBU_CLOUD_ENABLED
+        bool "Enable Bambu Cloud"
+        default y
+        help
+            Enable Bambu Cloud MQTT connection
+
+    config PRINTSPHERE_HASS_ENABLED
+        bool "Enable HomeAssistant MQTT"
+        default y
+        help
+            Enable HomeAssistant MQTT integration
+
+    config PRINTSPHERE_POLL_INTERVAL_MS
+        int "Printer Poll Interval (ms)"
+        default 3000
+        help
+            Interval for polling printer status
+
+endmenu
