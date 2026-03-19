@@ -1,8 +1,8 @@
 /**
  * @file tft_drivers.cpp
- * @brief TFT显示驱动实现
+ * @brief GC9A01 圆形 TFT 显示驱动实现
  *
- * 支持GC9A01(圆形)和ST7789(方形)两种240x240 TFT屏幕
+ * 硬件平台: ESP32-S3 + 240x240 圆形 SPI TFT (GC9A01)
  *
  * 通信接口: SPI mode 0, 40MHz
  * 数据格式: RGB565 (16位)
@@ -46,16 +46,6 @@ static const char *TAG = "TFT";
 #define GC9A01_NGAMCTRL 0xE1    // 负GAMMA设置
 #define GC9A01_INVON    0x21    // 显示反色开启
 
-// ST7789 命令定义
-#define ST7789_SLPIN    0x10    // 睡眠模式进入
-#define ST7789_SLPOUT   0x11    // 睡眠模式退出
-#define ST7789_DISPON   0x29    // 显示开启
-#define ST7789_CASET    0x2A    // 列地址设置
-#define ST7789_RASET    0x2B    // 行地址设置
-#define ST7789_RAMWR    0x2C    // 内存写
-#define ST7789_MADCTL   0x36    // 内存访问控制
-#define ST7789_COLMOD   0x3A    // 颜色模式
-
 /**
  * @brief SPI传输前回调
  *
@@ -72,7 +62,7 @@ static void tft_spi_pre_transfer_callback(spi_transaction_t *t) {
  * @brief 初始化TFT显示屏
  */
 int tft_init(tft_context_t *ctx) {
-    ESP_LOGI(TAG, "正在初始化TFT显示屏");
+    ESP_LOGI(TAG, "正在初始化GC9A01 TFT显示屏");
 
     // 配置GPIO
     gpio_config_t io_conf = {
@@ -122,72 +112,56 @@ int tft_init(tft_context_t *ctx) {
     gpio_set_level(ctx->rst, 1);
     esp_rom_delay_us(100000);
 
-    // 根据驱动类型发送初始化序列
-    if (ctx->driver == TFT_DRIVER_GC9A01) {
-        // GC9A01 圆形屏初始化序列
-        tft_write_command(ctx, GC9A01_SLPOUT);
-        esp_rom_delay_us(120000);
+    // GC9A01 圆形屏初始化序列
+    tft_write_command(ctx, GC9A01_SLPOUT);
+    esp_rom_delay_us(120000);
 
-        tft_write_command(ctx, GC9A01_MADCTL);
-        tft_write_data(ctx, (uint8_t[]){0x68}, 1);  // MX, MV, RGB
+    tft_write_command(ctx, GC9A01_MADCTL);
+    tft_write_data(ctx, (uint8_t[]){0x68}, 1);  // MX, MV, RGB
 
-        tft_write_command(ctx, GC9A01_COLMOD);
-        tft_write_data(ctx, (uint8_t[]){0x05}, 1);  // 16-bit RGB565
+    tft_write_command(ctx, GC9A01_COLMOD);
+    tft_write_data(ctx, (uint8_t[]){0x05}, 1);  // 16-bit RGB565
 
-        tft_write_command(ctx, GC9A01_PORCTRL);
-        tft_write_data(ctx, (uint8_t[]){0x0C, 0x0C, 0x00, 0x33, 0x33}, 5);
+    tft_write_command(ctx, GC9A01_PORCTRL);
+    tft_write_data(ctx, (uint8_t[]){0x0C, 0x0C, 0x00, 0x33, 0x33}, 5);
 
-        tft_write_command(ctx, GC9A01_GCTRL);
-        tft_write_data(ctx, (uint8_t[]){0x35}, 1);
+    tft_write_command(ctx, GC9A01_GCTRL);
+    tft_write_data(ctx, (uint8_t[]){0x35}, 1);
 
-        tft_write_command(ctx, GC9A01_VCOMS);
-        tft_write_data(ctx, (uint8_t[]){0x1B}, 1);
+    tft_write_command(ctx, GC9A01_VCOMS);
+    tft_write_data(ctx, (uint8_t[]){0x1B}, 1);
 
-        tft_write_command(ctx, GC9A01_LCMCTRL);
-        tft_write_data(ctx, (uint8_t[]){0x2C}, 1);
+    tft_write_command(ctx, GC9A01_LCMCTRL);
+    tft_write_data(ctx, (uint8_t[]){0x2C}, 1);
 
-        tft_write_command(ctx, GC9A01_VDVVRHEN);
-        tft_write_data(ctx, (uint8_t[]){0x01}, 1);
+    tft_write_command(ctx, GC9A01_VDVVRHEN);
+    tft_write_data(ctx, (uint8_t[]){0x01}, 1);
 
-        tft_write_command(ctx, GC9A01_VRHS);
-        tft_write_data(ctx, (uint8_t[]){0x1C}, 1);
+    tft_write_command(ctx, GC9A01_VRHS);
+    tft_write_data(ctx, (uint8_t[]){0x1C}, 1);
 
-        tft_write_command(ctx, GC9A01_FRCTRL1);
-        tft_write_data(ctx, (uint8_t[]){0x01}, 1);
+    tft_write_command(ctx, GC9A01_FRCTRL1);
+    tft_write_data(ctx, (uint8_t[]){0x01}, 1);
 
-        tft_write_command(ctx, GC9A01_PWCTRL1);
-        tft_write_data(ctx, (uint8_t[]){0xA9, 0x10}, 2);
+    tft_write_command(ctx, GC9A01_PWCTRL1);
+    tft_write_data(ctx, (uint8_t[]){0xA9, 0x10}, 2);
 
-        tft_write_command(ctx, GC9A01_PGAMCTRL);
-        tft_write_data(ctx, (uint8_t[]){0xD0, 0x02, 0x02, 0x13, 0x11, 0x2B, 0x3C, 0x44, 0x4C, 0x2D, 0x1F, 0x1F, 0x1F, 0x23}, 14);
+    tft_write_command(ctx, GC9A01_PGAMCTRL);
+    tft_write_data(ctx, (uint8_t[]){0xD0, 0x02, 0x02, 0x13, 0x11, 0x2B, 0x3C, 0x44, 0x4C, 0x2D, 0x1F, 0x1F, 0x1F, 0x23}, 14);
 
-        tft_write_command(ctx, GC9A01_NGAMCTRL);
-        tft_write_data(ctx, (uint8_t[]){0xD0, 0x02, 0x02, 0x13, 0x11, 0x2B, 0x3C, 0x44, 0x4C, 0x2D, 0x1F, 0x1F, 0x1F, 0x23}, 14);
+    tft_write_command(ctx, GC9A01_NGAMCTRL);
+    tft_write_data(ctx, (uint8_t[]){0xD0, 0x02, 0x02, 0x13, 0x11, 0x2B, 0x3C, 0x44, 0x4C, 0x2D, 0x1F, 0x1F, 0x1F, 0x23}, 14);
 
-        tft_write_command(ctx, GC9A01_INVON);
-        esp_rom_delay_us(10000);
+    tft_write_command(ctx, GC9A01_INVON);
+    esp_rom_delay_us(10000);
 
-        tft_write_command(ctx, GC9A01_DISPON);
-        esp_rom_delay_us(100000);
-    } else {
-        // ST7789 方形屏初始化
-        tft_write_command(ctx, ST7789_SLPOUT);
-        esp_rom_delay_us(120000);
-
-        tft_write_command(ctx, ST7789_MADCTL);
-        tft_write_data(ctx, (uint8_t[]){0x00}, 1);
-
-        tft_write_command(ctx, ST7789_COLMOD);
-        tft_write_data(ctx, (uint8_t[]){0x05}, 1);
-
-        tft_write_command(ctx, ST7789_DISPON);
-        esp_rom_delay_us(100000);
-    }
+    tft_write_command(ctx, GC9A01_DISPON);
+    esp_rom_delay_us(100000);
 
     // 开启背光
     gpio_set_level(ctx->blk, 1);
 
-    ESP_LOGI(TAG, "TFT显示屏初始化成功");
+    ESP_LOGI(TAG, "GC9A01 TFT显示屏初始化成功");
     return ESP_OK;
 }
 
@@ -241,25 +215,13 @@ void tft_set_window(tft_context_t *ctx, int x, int y, int w, int h) {
     uint8_t caset_data[] = {(x >> 8) & 0xFF, x & 0xFF, (xe >> 8) & 0xFF, xe & 0xFF};
     uint8_t raset_data[] = {(y >> 8) & 0xFF, y & 0xFF, (ye >> 8) & 0xFF, ye & 0xFF};
 
-    if (ctx->driver == TFT_DRIVER_GC9A01) {
-        tft_write_command(ctx, GC9A01_CASET);
-    } else {
-        tft_write_command(ctx, ST7789_CASET);
-    }
+    tft_write_command(ctx, GC9A01_CASET);
     tft_write_data(ctx, caset_data, 4);
 
-    if (ctx->driver == TFT_DRIVER_GC9A01) {
-        tft_write_command(ctx, GC9A01_RASET);
-    } else {
-        tft_write_command(ctx, ST7789_RASET);
-    }
+    tft_write_command(ctx, GC9A01_RASET);
     tft_write_data(ctx, raset_data, 4);
 
-    if (ctx->driver == TFT_DRIVER_GC9A01) {
-        tft_write_command(ctx, GC9A01_RAMWR);
-    } else {
-        tft_write_command(ctx, ST7789_RAMWR);
-    }
+    tft_write_command(ctx, GC9A01_RAMWR);
 }
 
 /**

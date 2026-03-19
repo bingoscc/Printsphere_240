@@ -1,10 +1,8 @@
 /**
  * @file tft_drivers.h
- * @brief TFT显示驱动接口
+ * @brief GC9A01 圆形 TFT 显示驱动接口
  *
- * 支持驱动:
- * - GC9A01: 圆形TFT (常见于智能手表)
- * - ST7789: 方形TFT (240x240分辨率)
+ * 硬件平台: ESP32-S3 + 240x240 圆形 SPI TFT (GC9A01)
  *
  * 通信接口: SPI (Motorola格式)
  * 数据格式: RGB565 (16位)
@@ -22,14 +20,6 @@ extern "C" {
 #endif
 
 /**
- * @brief TFT驱动类型
- */
-typedef enum {
-    TFT_DRIVER_GC9A01,  // 圆形TFT驱动
-    TFT_DRIVER_ST7789   // 方形TFT驱动
-} tft_driver_type_t;
-
-/**
  * @brief TFT上下文结构体
  */
 typedef struct {
@@ -44,7 +34,6 @@ typedef struct {
     int height;              // 屏幕高度
     int spi_host;           // SPI主机号
     uint32_t spi_freq;       // SPI频率
-    tft_driver_type_t driver; // 驱动类型
     spi_device_handle_t spi; // SPI设备句柄
 } tft_context_t;
 

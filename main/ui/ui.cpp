@@ -37,7 +37,7 @@ static bool s_wifi_connected = false;
 // 云端状态
 static char s_cloud_status[32] = "Disconnected";
 
-// TFT上下文 (使用genshin_godeye引脚)
+// TFT上下文 (使用genshin_godeye引脚，GC9A01圆形屏)
 static tft_context_t s_tft_ctx = {
     .cs = GPIO_NUM_11,
     .dc = GPIO_NUM_10,
@@ -50,7 +50,6 @@ static tft_context_t s_tft_ctx = {
     .height = 240,
     .spi_host = SPI2_HOST,
     .spi_freq = 40000000,
-    .driver = TFT_DRIVER_GC9A01,
     .spi = nullptr
 };
 

@@ -7,7 +7,7 @@
 | 项目 | 型号/规格 |
 |------|-----------|
 | 主控芯片 | ESP32-S3 (Xtensa dual-core 32-bit) |
-| 显示屏 | 240x240 SPI TFT (GC9A01 圆形 / ST7789 方形) |
+| 显示屏 | 240x240 SPI TFT (GC9A01 圆形) |
 | 存储 | SDMMC SD卡 |
 | WiFi | ESP32-S3 内置 WiFi (AP+STA 模式) |
 
@@ -81,7 +81,7 @@ printsphere_240/
 │   ├── board_pins.h                # 硬件引脚定义
 │   ├── display/                     # 显示驱动
 │   │   ├── tft_drivers.h
-│   │   └── tft_drivers.cpp         # GC9A01/ST7789 驱动
+│   │   └── tft_drivers.cpp         # GC9A01 驱动
 │   ├── ui/                          # LVGL UI
 │   │   ├── ui.h/.cpp               # UI 主逻辑
 │   │   ├── screens.h/.cpp          # 屏幕定义
@@ -240,16 +240,6 @@ device/{serial}/report
 | SPI 频率 | 40MHz |
 | 驱动IC | GC9A01 |
 
-### ST7789 (方形)
-
-| 参数 | 值 |
-|------|-----|
-| 分辨率 | 240x240 |
-| 颜色深度 | RGB565 (16-bit) |
-| SPI 模式 | Mode 0 |
-| SPI 频率 | 40MHz |
-| 驱动IC | ST7789 |
-
 ## 已知问题
 
 1. Setup Portal 的 /save 接口暂未完整实现 JSON 保存
@@ -272,7 +262,7 @@ MIT License
 ### v1.0.0 (2026-03-19)
 
 - 初始版本
-- 支持 GC9A01/ST7789 240x240 TFT
+- 支持 GC9A01 240x240 TFT
 - 支持 Bambu Cloud MQTT 连接
 - 支持 HomeAssistant MQTT 发现协议
 - Web 配网界面
